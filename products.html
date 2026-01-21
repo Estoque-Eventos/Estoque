@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Gestão de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-boxes"></i>
+                <span>Gestão Estoque</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="products.html" class="nav-item active">
+                <i class="fas fa-box"></i>
+                <span>Produtos</span>
+                <span class="badge" id="totalProductsBadge">0</span>
+            </a>
+            <a href="#" class="nav-item" id="alertsNav">
+                <i class="fas fa-bell"></i>
+                <span>Alertas</span>
+                <span class="badge badge-danger" id="alertsBadge">0</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <p class="user-name" id="userName">Usuário</p>
+                    <p class="user-email" id="userEmail">usuario@email.com</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-block" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-left">
+                <button class="sidebar-toggle mobile-only" id="mobileSidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Gerenciamento de Produtos</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" id="addProductBtn">
+                    <i class="fas fa-plus"></i> Novo Produto
+                </button>
+            </div>
+        </header>
+
+        <!-- Filtros e Busca -->
+        <section class="section">
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar produtos...">
+                </div>
+
+                <div class="filter-group">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">Todas as categorias</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Limpeza">Limpeza</option>
+                        <option value="Higiene">Higiene</option>
+                        <option value="Eletrônicos">Eletrônicos</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Todos os status</option>
+                        <option value="ok">Em estoque</option>
+                        <option value="low">Estoque baixo</option>
+                        <option value="out">Sem estoque</option>
+                        <option value="expiring">Validade próxima</option>
+                    </select>
+
+                    <button class="btn btn-sm" id="clearFilters">
+                        <i class="fas fa-times"></i> Limpar filtros
+                    </button>
+                </div>
+
+                <div class="action-group">
+                    <button class="btn btn-sm" id="exportBtn">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabela de Produtos -->
+        <section class="section">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Est. Mínimo</th>
+                            <th>Preço Unit.</th>
+                            <th>Validade</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTable">
+                        <tr>
+                            <td colspan="9" class="empty-cell">
+                                <div class="empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>Nenhum produto cadastrado</p>
+                                    <button class="btn btn-primary" onclick="document.getElementById('addProductBtn').click()">
+                                        <i class="fas fa-plus"></i> Adicionar Primeiro Produto
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination" id="pagination">
+                <button class="btn btn-sm" id="prevPage" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span id="pageInfo">Página 1 de 1</span>
+                <button class="btn btn-sm" id="nextPage" disabled>
+                    Próxima <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Produto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">
+                    <i class="fas fa-box"></i> Novo Produto
+                </h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="productForm" class="modal-body">
+                <input type="hidden" id="productId">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">
+                            <i class="fas fa-tag"></i> Nome do Produto *
+                        </label>
+                        <input type="text" id="productName" required placeholder="Ex: Arroz Tipo 1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productSku">
+                            <i class="fas fa-barcode"></i> SKU/Código *
+                        </label>
+                        <input type="text" id="productSku" required placeholder="Ex: ARZ-001">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productCategory">
+                            <i class="fas fa-folder"></i> Categoria *
+                        </label>
+                        <select id="productCategory" required>
+                            <option value="">Selecione...</option>
+                            <option value="Alimentos">Alimentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Limpeza">Limpeza</option>
+                            <option value="Higiene">Higiene</option>
+                            <option value="Eletrônicos">Eletrônicos</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productSupplier">
+                            <i class="fas fa-truck"></i> Fornecedor
+                        </label>
+                        <input type="text" id="productSupplier" placeholder="Ex: Distribuidora ABC">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productQuantity">
+                            <i class="fas fa-cubes"></i> Quantidade Atual *
+                        </label>
+                        <input type="number" id="productQuantity" required min="0" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productMinStock">
+                            <i class="fas fa-exclamation-triangle"></i> Estoque Mínimo *
+                        </label>
+                        <input type="number" id="productMinStock" required min="0" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productPrice">
+                            <i class="fas fa-dollar-sign"></i> Preço Unitário *
+                        </label>
+                        <input type="number" id="productPrice" required min="0" step="0.01" placeholder="0,00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productExpiry">
+                            <i class="fas fa-calendar-alt"></i> Data de Validade
+                        </label>
+                        <input type="date" id="productExpiry">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productUnit">
+                            <i class="fas fa-balance-scale"></i> Unidade
+                        </label>
+                        <select id="productUnit">
+                            <option value="UN">Unidade (UN)</option>
+                            <option value="KG">Quilograma (KG)</option>
+                            <option value="L">Litro (L)</option>
+                            <option value="CX">Caixa (CX)</option>
+                            <option value="PC">Peça (PC)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">
+                        <i class="fas fa-align-left"></i> Descrição
+                    </label>
+                    <textarea id="productDescription" rows="3" placeholder="Informações adicionais sobre o produto..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-exclamation-circle"></i> Confirmar Exclusão
+                </h2>
+                <button class="modal-close" id="closeConfirmModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificações -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html>

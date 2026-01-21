@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestão de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-boxes"></i>
+                <span>Gestão Estoque</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="products.html" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Produtos</span>
+                <span class="badge" id="totalProductsBadge">0</span>
+            </a>
+            <a href="#" class="nav-item" id="alertsNav">
+                <i class="fas fa-bell"></i>
+                <span>Alertas</span>
+                <span class="badge badge-danger" id="alertsBadge">0</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <p class="user-name" id="userName">Usuário</p>
+                    <p class="user-email" id="userEmail">usuario@email.com</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-block" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-left">
+                <button class="sidebar-toggle mobile-only" id="mobileSidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="header-date">
+                    <i class="fas fa-calendar"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total de Produtos</p>
+                    <h3 class="stat-value" id="totalProducts">0</h3>
+                    <p class="stat-change">Itens cadastrados</p>
+                </div>
+            </div>
+
+            <div class="stat-card stat-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Estoque Baixo</p>
+                    <h3 class="stat-value" id="lowStock">0</h3>
+                    <p class="stat-change">Produtos abaixo do mínimo</p>
+                </div>
+            </div>
+
+            <div class="stat-card stat-danger">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Validade Próxima</p>
+                    <h3 class="stat-value" id="expiringProducts">0</h3>
+                    <p class="stat-change">Vencem em 30 dias</p>
+                </div>
+            </div>
+
+            <div class="stat-card stat-success">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Valor Total</p>
+                    <h3 class="stat-value" id="totalValue">R$ 0,00</h3>
+                    <p class="stat-change">Valor do estoque</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas Prioritários -->
+        <section class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-bell"></i> Alertas Prioritários
+                </h2>
+                <button class="btn btn-sm" id="refreshAlerts">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+
+            <div class="alerts-container" id="alertsContainer">
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Nenhum alerta no momento</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <div class="charts-grid">
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-chart-pie"></i> Produtos por Categoria
+                    </h2>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-chart-bar"></i> Produtos com Menor Estoque
+                    </h2>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="stockChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <!-- Produtos Recentes -->
+        <section class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-history"></i> Últimos Produtos Cadastrados
+                </h2>
+                <a href="products.html" class="btn btn-sm">
+                    Ver todos <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Validade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentProductsTable">
+                        <tr>
+                            <td colspan="5" class="empty-cell">Nenhum produto cadastrado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notificações -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
